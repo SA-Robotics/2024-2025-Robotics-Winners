@@ -142,7 +142,7 @@ public class DriveTrain {
     /**
      * Strafes the robot given a distance to move
      * @param power Motor power
-     * @param distance Distance to move motors
+     * @param distance Distance to move motors ([-] -> left | [+] -> right)
      */
     public void strafeToPosition(double power, int distance) {
         // Set new position

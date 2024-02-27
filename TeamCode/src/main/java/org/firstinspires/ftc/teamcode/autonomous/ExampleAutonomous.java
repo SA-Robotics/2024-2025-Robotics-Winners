@@ -59,13 +59,29 @@ public class ExampleAutonomous extends LinearOpMode {
         // START //
         ///////////
 
+        telemetry.addData("Status", "Moving forward");
+        telemetry.update();
         dt.driveToPosition(0.5, 1000);
+
+        telemetry.addData("Status", "Moving right");
+        telemetry.update();
         dt.strafeToPosition(0.5, 1000);
+
+        telemetry.addData("Status", "Moving back");
+        telemetry.update();
         dt.driveToPosition(0.5, -1000);
+
+        telemetry.addData("Status", "Moving left");
+        telemetry.update();
         dt.strafeToPosition(0.5, -1000);
 
+        telemetry.addData("Status", "Spinning");
+        telemetry.update();
         dt.turnToPosition(1, 1000);
 
-        // Autonomous will end automatically unless while(opModeIsActive)
+        while(opModeIsActive()) {
+            telemetry.addData("Camera", camera.getTFODRecognitions().size() + " recognition(s)");
+            telemetry.update();
+        }
     }
 }
