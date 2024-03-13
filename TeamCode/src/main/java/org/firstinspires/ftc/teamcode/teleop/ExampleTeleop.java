@@ -4,9 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.DriveTrain;
-import org.firstinspires.ftc.teamcode.config.Hardware;
-import org.firstinspires.ftc.teamcode.controller.ControllerHandler;
+import org.firstinspires.ftc.teamcode.util.DriveTrain;
+import org.firstinspires.ftc.teamcode.util.config.Hardware;
+import org.firstinspires.ftc.teamcode.util.controller.ControllerHandler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @TeleOp(name = "Example Teleop", group = "Example")
 public class ExampleTeleop extends OpMode {

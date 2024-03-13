@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.config;
+package org.firstinspires.ftc.teamcode.util.config;
 
 import java.io.File;
 import java.io.FileNotFoundException;

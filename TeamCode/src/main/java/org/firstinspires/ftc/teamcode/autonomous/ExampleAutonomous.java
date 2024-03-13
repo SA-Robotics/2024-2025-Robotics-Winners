@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.DriveTrain;
-import org.firstinspires.ftc.teamcode.config.Hardware;
-import org.firstinspires.ftc.teamcode.visionportal.VisionPortalCamera;
+import org.firstinspires.ftc.teamcode.util.DriveTrain;
+import org.firstinspires.ftc.teamcode.util.config.Hardware;
+import org.firstinspires.ftc.teamcode.util.visionportal.VisionPortalCamera;
 
 @Autonomous(name = "Example Autonomous", group = "Example")
 public class ExampleAutonomous extends LinearOpMode {
