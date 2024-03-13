@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.DriveTrain;
+import org.firstinspires.ftc.teamcode.config.Hardware;
 import org.firstinspires.ftc.teamcode.controller.ControllerHandler;
 
 @TeleOp(name = "Example Teleop", group = "Example")
@@ -16,10 +17,12 @@ public class ExampleTeleop extends OpMode {
 
     @Override
     public void init() {
-        DcMotor fR = hardwareMap.get(DcMotor.class, "FrontRight");
-        DcMotor fL = hardwareMap.get(DcMotor.class, "FrontLeft");
-        DcMotor bR = hardwareMap.get(DcMotor.class, "BackRight");
-        DcMotor bL = hardwareMap.get(DcMotor.class, "BackLeft");
+        Hardware.init(hardwareMap);
+
+        DcMotor fR = Hardware.DT_FRONT_RIGHT_MOTOR.get();
+        DcMotor fL = Hardware.DT_FRONT_LEFT_MOTOR.get();
+        DcMotor bR = Hardware.DT_BACK_RIGHT_MOTOR.get();
+        DcMotor bL = Hardware.DT_BACK_LEFT_MOTOR.get();
         dt = new DriveTrain(fR, fL, bR, bL, new DcMotor[] {fR, fL});
 
         ch1 = new ControllerHandler(gamepad1);

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.DriveTrain;
+import org.firstinspires.ftc.teamcode.config.Hardware;
 import org.firstinspires.ftc.teamcode.visionportal.VisionPortalCamera;
 
 @Autonomous(name = "Example Autonomous", group = "Example")
@@ -19,11 +20,12 @@ public class ExampleAutonomous extends LinearOpMode {
         ////////////////////
         // INITIALIZATION //
         ////////////////////
+        Hardware.init(hardwareMap);
 
-        DcMotor fR = hardwareMap.get(DcMotor.class, "FrontRight");
-        DcMotor fL = hardwareMap.get(DcMotor.class, "FrontLeft");
-        DcMotor bR = hardwareMap.get(DcMotor.class, "BackRight");
-        DcMotor bL = hardwareMap.get(DcMotor.class, "BackLeft");
+        DcMotor fR = Hardware.DT_FRONT_RIGHT_MOTOR.get();
+        DcMotor fL = Hardware.DT_FRONT_LEFT_MOTOR.get();
+        DcMotor bR = Hardware.DT_BACK_RIGHT_MOTOR.get();
+        DcMotor bL = Hardware.DT_BACK_LEFT_MOTOR.get();
         dt = new DriveTrain(fR, fL, bR, bL, new DcMotor[] {fL, fR});
         dt.autonomousInit();
 
