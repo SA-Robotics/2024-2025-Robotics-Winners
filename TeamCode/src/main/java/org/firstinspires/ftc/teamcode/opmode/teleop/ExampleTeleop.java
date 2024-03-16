@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -69,6 +69,8 @@ public class ExampleTeleop extends OpMode {
 
     @Override
     public void loop() {
+        ch1.update();
+        ch2.update();
         dt.update(ch1, null, false);
     }
 }
