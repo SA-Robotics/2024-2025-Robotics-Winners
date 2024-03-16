@@ -3,13 +3,16 @@ package org.firstinspires.ftc.teamcode.util.config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+
 import java.util.Map;
 
 public enum Hardware {
     DT_FRONT_RIGHT_MOTOR(DcMotor.class),
     DT_BACK_RIGHT_MOTOR(DcMotor.class),
     DT_FRONT_LEFT_MOTOR(DcMotor.class),
-    DT_BACK_LEFT_MOTOR(DcMotor.class);
+    DT_BACK_LEFT_MOTOR(DcMotor.class),
+    CAMERA(WebcamName.class);
 
     private String name;
     private Class clazz;

@@ -4,18 +4,19 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.util.DriveTrain;
 import org.firstinspires.ftc.teamcode.util.config.Hardware;
 import org.firstinspires.ftc.teamcode.util.controller.ControllerHandler;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.firstinspires.ftc.teamcode.util.visionportal.VisionPortalCamera;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @TeleOp(name = "Example Teleop", group = "Example")
 public class ExampleTeleop extends OpMode {
 
     private DriveTrain dt;
     private ControllerHandler ch1, ch2;
+    private VisionPortalCamera camera;
     private String status;
 
     @Override
@@ -30,6 +31,8 @@ public class ExampleTeleop extends OpMode {
 
         ch1 = new ControllerHandler(gamepad1);
         ch2 = new ControllerHandler(gamepad2);
+
+        camera = new VisionPortalCamera(Hardware.CAMERA.get());
 
         status = "Awaiting start";
     }
@@ -72,5 +75,15 @@ public class ExampleTeleop extends OpMode {
         ch1.update();
         ch2.update();
         dt.update(ch1, null, false);
+
+        telemetry.addLine("Tensor Flow Object Detections:");
+        for(Recognition recognition : camera.getTFODRecognitions()) {
+            telemetry.addLine(" - " + recognition.getLabel());
+        }
+
+        telemetry.addLine("April Tag Detections:");
+        for(AprilTagDetection recognition : camera.getATDetections()) {
+            telemetry.addLine(" - " + recognition.id);
+        }
     }
 }
