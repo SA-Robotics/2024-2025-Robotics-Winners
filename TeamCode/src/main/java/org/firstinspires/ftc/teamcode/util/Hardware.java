@@ -1,27 +1,21 @@
-package org.firstinspires.ftc.teamcode.util.config;
+package org.firstinspires.ftc.teamcode.util;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-
-import java.util.Map;
-
 public enum Hardware {
-    DT_FRONT_RIGHT_MOTOR(DcMotor.class),
-    DT_BACK_RIGHT_MOTOR(DcMotor.class),
-    DT_FRONT_LEFT_MOTOR(DcMotor.class),
-    DT_BACK_LEFT_MOTOR(DcMotor.class),
-    CAMERA(WebcamName.class);
+    DT_FRONT_RIGHT_MOTOR(DcMotor.class, "FrontRight"),
+    DT_BACK_RIGHT_MOTOR(DcMotor.class, "BackRight"),
+    DT_FRONT_LEFT_MOTOR(DcMotor.class, "FrontLeft"),
+    DT_BACK_LEFT_MOTOR(DcMotor.class, "BackLeft");
+    //CAMERA(WebcamName.class);
 
     private String name;
     private Class clazz;
     private static HardwareMap hwMap;
 
-    private Hardware(Class<?> clazz) {
-        Map<Hardware, String> hwCFG = cfgParser.getHardwareCFGMap();
-
-        this.name = hwCFG.get(this);
+    private Hardware(Class<?> clazz, String name) {
+        this.name = name;
         this.clazz = clazz;
     }
 
@@ -44,7 +38,7 @@ public enum Hardware {
      * @return Reference to class
      */
     public <T> T get() {
-        return (T)hwMap.get(clazz.getClass(), name);
+        return (T)hwMap.get(clazz, name);
     }
 
     public static void init(HardwareMap hwMap) {
