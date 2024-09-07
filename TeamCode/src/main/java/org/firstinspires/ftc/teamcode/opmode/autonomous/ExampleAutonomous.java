@@ -4,16 +4,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.util.DriveTrain;
-import org.firstinspires.ftc.teamcode.util.config.Hardware;
-import org.firstinspires.ftc.teamcode.util.visionportal.VisionPortalCamera;
+import org.firstinspires.ftc.teamcode.util.Hardware;
 
 @Autonomous(name = "Example Autonomous", group = "Example")
 public class ExampleAutonomous extends LinearOpMode {
 
     private DriveTrain dt;
-    private VisionPortalCamera camera;
+    //private VisionPortalCamera camera;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -29,7 +27,7 @@ public class ExampleAutonomous extends LinearOpMode {
         dt = new DriveTrain(fR, fL, bR, bL, new DcMotor[] {fL, fR});
         dt.autonomousInit();
 
-        camera = new VisionPortalCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+        //camera = new VisionPortalCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
 
         String status = "Awaiting start";
         while(opModeInInit()) { // Loops until the autonomous is started
@@ -81,9 +79,9 @@ public class ExampleAutonomous extends LinearOpMode {
         telemetry.update();
         dt.turnToPosition(1, 1000);
 
-        while(opModeIsActive()) {
-            telemetry.addData("Camera", camera.getTFODRecognitions().size() + " recognition(s)");
-            telemetry.update();
-        }
+//        while(opModeIsActive()) {
+//            telemetry.addData("Camera", camera.getTFODRecognitions().size() + " recognition(s)");
+//            telemetry.update();
+//        }
     }
 }
