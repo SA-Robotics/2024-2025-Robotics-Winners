@@ -1,13 +1,18 @@
 package org.firstinspires.ftc.teamcode.util.arm;
 
+import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.util.controller.ControllerHandler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ArmController {
-    public static final double CLAW_CLOSED_POSITION = 0, CLAW_OPENED_POSITION = 0.4;
+    public static final double CLAW_CLOSED_POSITION = 0.57, CLAW_OPENED_POSITION = 0.4;
     public static final double SLIDE_MOVE_POWER = 1, ARM_ROTATE_POWER = 1;
     public static final int ARM_TICKS_PER_ROTATION = 5281;
 
@@ -16,8 +21,15 @@ public class ArmController {
     private DcMotor leftArmMotor, rightArmMotor;
     private Servo leftClawServo, rightClawServo;
     private boolean isClawOpen;
+    private int setPoint;
+    private List<Double> errorList = new ArrayList<Double>();
+    private int timeStep = 50; // In millis
+    private long prevTime;
+    private boolean isPIDActive = true;
+    private Thread PIDThread;
+    private double kP = 1, kI = 0.02, kD = 0.1, k;
 
-    public ArmController(ControllerHandler ch, DcMotor leftSlideMotor, DcMotor rightSlideMotor, DcMotor leftArmMotor, DcMotor rightArmMotor, Servo leftClawServo, Servo rightClawServo) {
+    public ArmController(ControllerHandler ch, @NonNull DcMotor leftSlideMotor, @NonNull DcMotor rightSlideMotor, @NonNull DcMotor leftArmMotor, @NonNull DcMotor rightArmMotor, @NonNull Servo leftClawServo, @NonNull Servo rightClawServo) {
         this.ch = ch;
         this.leftSlideMotor = leftSlideMotor;
         this.rightSlideMotor = rightSlideMotor;
@@ -27,23 +39,92 @@ public class ArmController {
         this.rightClawServo = rightClawServo;
 
         // Linear slide motors init
-        leftSlideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        this.leftSlideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.leftSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.leftSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.rightSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.rightSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Arm rotation motors init
-        leftArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        this.leftArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.rightArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Claw servos init
-        leftClawServo.setPosition(CLAW_OPENED_POSITION);
-        rightClawServo.setPosition(CLAW_OPENED_POSITION);
+        this.leftClawServo.setPosition(CLAW_OPENED_POSITION);
+        this.rightClawServo.setPosition(CLAW_OPENED_POSITION);
         isClawOpen = true;
+
+        PIDThread = new Thread(() -> {
+            while(isPIDActive) {
+                if(System.currentTimeMillis() - prevTime < timeStep) {
+                    try {
+                        Thread.sleep(3);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    continue;
+                }
+
+                prevTime = System.currentTimeMillis();
+
+                // Proportion
+                double error = setPoint - (this.leftSlideMotor.getCurrentPosition() + this.rightSlideMotor.getCurrentPosition()) / 2;
+
+                // For integral and derivative
+                errorList.add(error);
+
+                if (errorList.size() > 200)
+                    errorList.remove(0);
+
+                // Integral (left rienman sum)
+                double sumOfErrors = 0;
+                for (Double e : errorList) {
+                    sumOfErrors += e * timeStep / 1000d;
+                }
+
+                // Derivative
+                double rateOfChange = (errorList.get(errorList.size() - 2) - error) / timeStep / 1000d;
+
+                // K evaluation
+                this.k = (kP * error + kI * sumOfErrors + kD * rateOfChange) / 100;
+            }
+        });
+    }
+
+    /**
+     * Updates the slide power according to the PID, if PID is not active, power will be set to 0
+     */
+    public void update() {
+        if(isPIDActive) {
+            leftSlideMotor.setPower(k);
+            rightSlideMotor.setPower(k);
+        } else {
+            leftSlideMotor.setPower(0);
+            rightSlideMotor.setPower(0);
+        }
+    }
+
+    /**
+     * Sets the linear slide PID set point to some point
+     * @param setPoint New set point
+     */
+    public void setSetPoint(int setPoint) {
+        this.setPoint = setPoint;
+    }
+
+    /**
+     * Disables the linear slide PID system
+     */
+    public void disablePID() {
+        isPIDActive = false;
+    }
+
+    /**
+     * Enables the linear slide PID system
+     */
+    public void enablePID() {
+        isPIDActive = true;
+        PIDThread.start();
     }
 
     /**
@@ -51,7 +132,7 @@ public class ArmController {
      */
     public void openClaw() {
         leftClawServo.setPosition(CLAW_OPENED_POSITION);
-        rightClawServo.setPosition(CLAW_OPENED_POSITION);
+        rightClawServo.setPosition(CLAW_CLOSED_POSITION);
         isClawOpen = true;
     }
 
@@ -60,7 +141,7 @@ public class ArmController {
      */
     public void closeClaw() {
         leftClawServo.setPosition(CLAW_CLOSED_POSITION);
-        rightClawServo.setPosition(CLAW_CLOSED_POSITION);
+        rightClawServo.setPosition(CLAW_OPENED_POSITION);
         isClawOpen = false;
     }
 
@@ -89,7 +170,7 @@ public class ArmController {
      * Set the position of the linear slides according to a certain position under ArmPosition.java
      * @param position new position of linear slide
      */
-    public void setSlidePosition(ArmPosition position) {
+    public void setSlidePosition(SlidePosition position) {
         leftSlideMotor.setTargetPosition(position.getTicks());
         rightSlideMotor.setTargetPosition(position.getTicks());
 
@@ -140,5 +221,33 @@ public class ArmController {
         rightArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftArmMotor.setPower(ARM_ROTATE_POWER);
         rightArmMotor.setPower(ARM_ROTATE_POWER);
+    }
+
+    public enum SlidePosition {
+        DOWN(0),
+        UP(4000);
+
+        private int ticks;
+        private SlidePosition(int ticks) {
+            this.ticks = ticks;
+        }
+
+        public int getTicks() {
+            return ticks;
+        }
+    }
+
+    public enum ArmPosition {
+        DOWN(0),
+        UP(1980);
+
+        private int ticks;
+        private ArmPosition(int ticks) {
+            this.ticks = ticks;
+        }
+
+        public int getTicks() {
+            return ticks;
+        }
     }
 }
