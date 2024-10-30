@@ -2,13 +2,22 @@ package org.firstinspires.ftc.teamcode.util;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 public enum Hardware {
     DT_FRONT_RIGHT_MOTOR(DcMotor.class, "FrontRight"),
     DT_BACK_RIGHT_MOTOR(DcMotor.class, "BackRight"),
     DT_FRONT_LEFT_MOTOR(DcMotor.class, "FrontLeft"),
-    DT_BACK_LEFT_MOTOR(DcMotor.class, "BackLeft");
-    //CAMERA(WebcamName.class);
+    DT_BACK_LEFT_MOTOR(DcMotor.class, "BackLeft"),
+    SLIDE_L_MOTOR(DcMotor.class, "SlideLeftMotor"),
+    SLIDE_R_MOTOR(DcMotor.class, "SlideRightMotor"),
+    ARM_L_MOTOR(DcMotor.class, "ArmLeftMotor"),
+    ARM_R_MOTOR(DcMotor.class, "ArmRightMotor"),
+    CLAW_L_SERVO(Servo.class, "ClawLeftServo"),
+    CLAW_R_SERVO(Servo.class, "ClawRightServo"),
+    CAMERA(WebcamName.class, "Webcam1");
 
     private String name;
     private Class clazz;
