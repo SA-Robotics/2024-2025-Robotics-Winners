@@ -13,7 +13,7 @@ public class DriveTrain {
     private DcMotor fL;
     private DcMotor bR;
     private DcMotor bL;
-    private int driveTrainPowerPercent = 60;
+    public int driveTrainPowerPercent = 60;
 
     public DriveTrain(DcMotor frontRight, DcMotor frontLeft, DcMotor backRight, DcMotor backLeft, DcMotor[] reversed) {
         fR = frontRight;

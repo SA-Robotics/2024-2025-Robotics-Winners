@@ -16,21 +16,23 @@ public class ArmController {
     public static final double SLIDE_MOVE_POWER = 1, ARM_ROTATE_POWER = 1;
     public static final int ARM_TICKS_PER_ROTATION = 5281;
 
-    private ControllerHandler ch;
     private DcMotor leftSlideMotor, rightSlideMotor;
     private DcMotor leftArmMotor, rightArmMotor;
     private Servo leftClawServo, rightClawServo;
     private boolean isClawOpen;
-    private int setPoint;
-    private List<Double> errorList = new ArrayList<Double>();
-    private int timeStep = 50; // In millis
-    private long prevTime;
-    private boolean isPIDActive = true;
-    private Thread PIDThread;
-    private double kP = 1, kI = 0.02, kD = 0.1, k;
+    public boolean manualArmControl, manualSlideControl;
 
-    public ArmController(ControllerHandler ch, @NonNull DcMotor leftSlideMotor, @NonNull DcMotor rightSlideMotor, @NonNull DcMotor leftArmMotor, @NonNull DcMotor rightArmMotor, @NonNull Servo leftClawServo, @NonNull Servo rightClawServo) {
-        this.ch = ch;
+    private List<Double> errorList = new ArrayList<Double>();
+    private Thread PIDThread;
+    private final double kP = 1, kI = 0.02, kD = 0.1;
+    private final int TIME_STEP = 50; // In millis
+    private final int ERROR_ENTRIES = 100;
+    private int setPoint;
+    private long prevTime; // Last PID update
+    private boolean isPIDActive = true;
+    private double k; // PID output
+
+    public ArmController(@NonNull DcMotor leftSlideMotor, @NonNull DcMotor rightSlideMotor, @NonNull DcMotor leftArmMotor, @NonNull DcMotor rightArmMotor, @NonNull Servo leftClawServo, @NonNull Servo rightClawServo) {
         this.leftSlideMotor = leftSlideMotor;
         this.rightSlideMotor = rightSlideMotor;
         this.leftArmMotor = leftArmMotor;
@@ -56,7 +58,7 @@ public class ArmController {
 
         PIDThread = new Thread(() -> {
             while(isPIDActive) {
-                if(System.currentTimeMillis() - prevTime < timeStep) {
+                if(System.currentTimeMillis() - prevTime < TIME_STEP) {
                     try {
                         Thread.sleep(3);
                     } catch (InterruptedException e) {
@@ -73,17 +75,17 @@ public class ArmController {
                 // For integral and derivative
                 errorList.add(error);
 
-                if (errorList.size() > 200)
+                if (errorList.size() > ERROR_ENTRIES)
                     errorList.remove(0);
 
                 // Integral (left rienman sum)
                 double sumOfErrors = 0;
                 for (Double e : errorList) {
-                    sumOfErrors += e * timeStep / 1000d;
+                    sumOfErrors += e * TIME_STEP / 1000d;
                 }
 
                 // Derivative
-                double rateOfChange = (errorList.get(errorList.size() - 2) - error) / timeStep / 1000d;
+                double rateOfChange = (error - errorList.get(errorList.size() - 2)) / TIME_STEP / 1000d;
 
                 // K evaluation
                 this.k = (kP * error + kI * sumOfErrors + kD * rateOfChange) / 100;
@@ -92,9 +94,11 @@ public class ArmController {
     }
 
     /**
-     * Updates the slide power according to the PID, if PID is not active, power will be set to 0
+     * Updates the slide power according to the PID, if PID is not active, power will be set to 0.
+     * Sets the arm control to manual or automatic on 'a' press
+     * Sets the slide control to manual or automatic on 'x' press
      */
-    public void update() {
+    public void update(ControllerHandler ch) {
         if(isPIDActive) {
             leftSlideMotor.setPower(k);
             rightSlideMotor.setPower(k);
@@ -102,6 +106,12 @@ public class ArmController {
             leftSlideMotor.setPower(0);
             rightSlideMotor.setPower(0);
         }
+
+        if(ch.a.onPress())
+            manualArmControl = !manualArmControl;
+
+        if(ch.x.onPress())
+            manualSlideControl = !manualSlideControl;
     }
 
     /**
@@ -181,6 +191,15 @@ public class ArmController {
     }
 
     /**
+     * Sets the arm's power according to a desired power
+     * @param power Arm power
+     */
+    public void setSlidePower(double power) {
+        leftSlideMotor.setPower(power);
+        rightSlideMotor.setPower(power);
+    }
+
+    /**
      * Set the position of the arm according to a manually input value
      * @param ticks new position of arm
      */
@@ -221,6 +240,15 @@ public class ArmController {
         rightArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftArmMotor.setPower(ARM_ROTATE_POWER);
         rightArmMotor.setPower(ARM_ROTATE_POWER);
+    }
+
+    /**
+     * Sets the arm's power according to a desired power
+     * @param power Arm power
+     */
+    public void setArmPower(double power) {
+        leftSlideMotor.setPower(power);
+        rightSlideMotor.setPower(power);
     }
 
     public enum SlidePosition {
