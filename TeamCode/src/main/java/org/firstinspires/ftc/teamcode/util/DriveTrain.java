@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.util.controller.ControllerHandler;
 
@@ -188,13 +189,13 @@ public class DriveTrain {
             yaw = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
         // Calculate power based on current angle of robot
-        double calcX = lX * Math.sin(yaw) + lY * Math.cos(yaw);
-        double calcY = lX * Math.cos(yaw) - lY * Math.sin(yaw);
+        double calcX = lX * Math.cos(yaw) - lY * Math.sin(yaw);
+        double calcY = lX * Math.sin(yaw) + lY * Math.cos(yaw);
 
         // Apply power
-        fR.setPower(calcY - calcX + rX);
-        fL.setPower(calcY + calcX + rX);
-        bR.setPower(calcY + calcX - rX);
-        bL.setPower(calcY - calcX - rX);
+        fR.setPower(calcX - calcY + rX);
+        fL.setPower(calcX + calcY + rX);
+        bR.setPower(calcX + calcY - rX);
+        bL.setPower(calcX - calcY - rX);
     }
 }

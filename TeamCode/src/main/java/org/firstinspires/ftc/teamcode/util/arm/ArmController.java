@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArmController {
-    public static final double CLAW_CLOSED_POSITION = 0.57, CLAW_OPENED_POSITION = 0.4;
+    public static final double CLAW_CLOSED_POSITION = 0.58, CLAW_OPENED_POSITION = 0.43;
     public static final double SLIDE_MOVE_POWER = 1, ARM_ROTATE_POWER = 1;
     public static final int ARM_TICKS_PER_ROTATION = 5281;
 
@@ -20,17 +20,6 @@ public class ArmController {
     private DcMotor leftArmMotor, rightArmMotor;
     private Servo leftClawServo, rightClawServo;
     private boolean isClawOpen;
-    public boolean manualArmControl, manualSlideControl;
-
-    private List<Double> errorList = new ArrayList<Double>();
-    private Thread PIDThread;
-    private final double kP = 1, kI = 0.02, kD = 0.1;
-    private final int TIME_STEP = 50; // In millis
-    private final int ERROR_ENTRIES = 100;
-    private int setPoint;
-    private long prevTime; // Last PID update
-    private boolean isPIDActive = true;
-    private double k; // PID output
 
     public ArmController(@NonNull DcMotor leftSlideMotor, @NonNull DcMotor rightSlideMotor, @NonNull DcMotor leftArmMotor, @NonNull DcMotor rightArmMotor, @NonNull Servo leftClawServo, @NonNull Servo rightClawServo) {
         this.leftSlideMotor = leftSlideMotor;
@@ -41,100 +30,21 @@ public class ArmController {
         this.rightClawServo = rightClawServo;
 
         // Linear slide motors init
-        this.leftSlideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         this.leftSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         this.leftSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.rightSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         this.rightSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.leftSlideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Arm rotation motors init
         this.leftArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         this.rightArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.leftArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Claw servos init
         this.leftClawServo.setPosition(CLAW_OPENED_POSITION);
-        this.rightClawServo.setPosition(CLAW_OPENED_POSITION);
+        this.rightClawServo.setPosition(CLAW_CLOSED_POSITION);
         isClawOpen = true;
-
-        PIDThread = new Thread(() -> {
-            while(isPIDActive) {
-                if(System.currentTimeMillis() - prevTime < TIME_STEP) {
-                    try {
-                        Thread.sleep(3);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    continue;
-                }
-
-                prevTime = System.currentTimeMillis();
-
-                // Proportion
-                double error = setPoint - (this.leftSlideMotor.getCurrentPosition() + this.rightSlideMotor.getCurrentPosition()) / 2;
-
-                // For integral and derivative
-                errorList.add(error);
-
-                if (errorList.size() > ERROR_ENTRIES)
-                    errorList.remove(0);
-
-                // Integral (left rienman sum)
-                double sumOfErrors = 0;
-                for (Double e : errorList) {
-                    sumOfErrors += e * TIME_STEP / 1000d;
-                }
-
-                // Derivative
-                double rateOfChange = (error - errorList.get(errorList.size() - 2)) / TIME_STEP / 1000d;
-
-                // K evaluation
-                this.k = (kP * error + kI * sumOfErrors + kD * rateOfChange) / 100;
-            }
-        });
-    }
-
-    /**
-     * Updates the slide power according to the PID, if PID is not active, power will be set to 0.
-     * Sets the arm control to manual or automatic on 'a' press
-     * Sets the slide control to manual or automatic on 'x' press
-     */
-    public void update(ControllerHandler ch) {
-        if(isPIDActive) {
-            leftSlideMotor.setPower(k);
-            rightSlideMotor.setPower(k);
-        } else {
-            leftSlideMotor.setPower(0);
-            rightSlideMotor.setPower(0);
-        }
-
-        if(ch.a.onPress())
-            manualArmControl = !manualArmControl;
-
-        if(ch.x.onPress())
-            manualSlideControl = !manualSlideControl;
-    }
-
-    /**
-     * Sets the linear slide PID set point to some point
-     * @param setPoint New set point
-     */
-    public void setSetPoint(int setPoint) {
-        this.setPoint = setPoint;
-    }
-
-    /**
-     * Disables the linear slide PID system
-     */
-    public void disablePID() {
-        isPIDActive = false;
-    }
-
-    /**
-     * Enables the linear slide PID system
-     */
-    public void enablePID() {
-        isPIDActive = true;
-        PIDThread.start();
     }
 
     /**
@@ -247,13 +157,13 @@ public class ArmController {
      * @param power Arm power
      */
     public void setArmPower(double power) {
-        leftSlideMotor.setPower(power);
-        rightSlideMotor.setPower(power);
+        leftArmMotor.setPower(power);
+        rightArmMotor.setPower(power);
     }
 
     public enum SlidePosition {
         DOWN(0),
-        UP(4000);
+        UP(500);
 
         private int ticks;
         private SlidePosition(int ticks) {
