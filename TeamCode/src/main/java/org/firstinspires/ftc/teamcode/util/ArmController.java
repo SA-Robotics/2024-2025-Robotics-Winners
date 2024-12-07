@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.util.arm;
+package org.firstinspires.ftc.teamcode.util;
 
 import androidx.annotation.NonNull;
 
@@ -34,17 +34,24 @@ public class ArmController {
         this.leftSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.rightSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         this.rightSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.leftSlideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.rightSlideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Arm rotation motors init
         this.leftArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         this.rightArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        this.leftArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.rightArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Claw servos init
         this.leftClawServo.setPosition(CLAW_OPENED_POSITION);
         this.rightClawServo.setPosition(CLAW_CLOSED_POSITION);
         isClawOpen = true;
+    }
+
+    public void autonomousInit() {
+        leftArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        closeClaw();
     }
 
     /**

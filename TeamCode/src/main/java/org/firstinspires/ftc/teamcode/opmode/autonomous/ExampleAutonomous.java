@@ -24,7 +24,7 @@ public class ExampleAutonomous extends LinearOpMode {
         DcMotor fL = Hardware.DT_FRONT_LEFT_MOTOR.get();
         DcMotor bR = Hardware.DT_BACK_RIGHT_MOTOR.get();
         DcMotor bL = Hardware.DT_BACK_LEFT_MOTOR.get();
-        dt = new DriveTrain(fR, fL, bR, bL, new DcMotor[] {fL, fR});
+        dt = new DriveTrain(fR, fL, bR, bL, new DcMotor[] {fL, bL});
         dt.autonomousInit();
 
         //camera = new VisionPortalCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));

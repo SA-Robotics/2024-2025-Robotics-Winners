@@ -3,9 +3,6 @@ package org.firstinspires.ftc.teamcode.util;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.util.controller.ControllerHandler;
 
 public class DriveTrain {
@@ -38,7 +35,13 @@ public class DriveTrain {
      * Waits until all motors are finished then continues program flow
      */
     public void awaitMotors() {
-        while(fR.isBusy() || fL.isBusy() || bR.isBusy() || bL.isBusy()) {}
+        while(fR.isBusy() || fL.isBusy() || bR.isBusy() || bL.isBusy()) {
+            try {
+                Thread.sleep(2);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     /**
@@ -175,20 +178,20 @@ public class DriveTrain {
         double rX = ch.rX.getValue() * scale;
 
         // Increase drive train power on left bumper
-        if(ch.leftBumper.onPress())
+        if(ch.leftBumper.onPress() && driveTrainPowerPercent + 10 <= 100)
             driveTrainPowerPercent += 10;
 
         // Decrease drive train power on right bumper
-        if(ch.rightBumper.onPress())
+        if(ch.rightBumper.onPress() && driveTrainPowerPercent - 10 >= 0)
             driveTrainPowerPercent -= 10;
 
         double yaw = 0;
 
         // Set yaw to current yaw of robot
         if(isFieldCentric && imu != null)
-            yaw = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            yaw = Math.toRadians(-imu.getRobotYawPitchRollAngles().getYaw());
 
-        // Calculate power based on current angle of robot
+        // Calculate power based on current angl e of robot
         double calcX = lX * Math.cos(yaw) - lY * Math.sin(yaw);
         double calcY = lX * Math.sin(yaw) + lY * Math.cos(yaw);
 

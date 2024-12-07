@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.util.DriveTrain;
 import org.firstinspires.ftc.teamcode.util.Hardware;
-import org.firstinspires.ftc.teamcode.util.arm.ArmController;
+import org.firstinspires.ftc.teamcode.util.ArmController;
 import org.firstinspires.ftc.teamcode.util.controller.ControllerHandler;
 @TeleOp(name = "Arm Test", group = "Test")
 public class ArmTest extends OpMode {

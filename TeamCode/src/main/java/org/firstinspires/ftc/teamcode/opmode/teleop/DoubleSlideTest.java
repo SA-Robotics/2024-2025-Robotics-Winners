@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.util.Hardware;
-import org.firstinspires.ftc.teamcode.util.arm.ArmController;
+import org.firstinspires.ftc.teamcode.util.ArmController;
 import org.firstinspires.ftc.teamcode.util.controller.ControllerHandler;
 
 @TeleOp(name = "Double Slide Test", group = "Test")

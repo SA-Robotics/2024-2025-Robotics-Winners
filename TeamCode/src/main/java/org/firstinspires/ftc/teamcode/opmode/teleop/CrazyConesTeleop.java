@@ -11,19 +11,21 @@ import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.ArmController;
 import org.firstinspires.ftc.teamcode.util.controller.ControllerHandler;
 
-@TeleOp(name = "Competition Teleop", group = "Competition")
-public class CompetitionTeleop extends OpMode {
-    private static final double EPSILON = 0.01;
-    private boolean precisionArmMode;
+@TeleOp(name = "Crazy Cones Teleop", group = "Competition")
+public class CrazyConesTeleop extends OpMode {
+
+    private final double EPSILON = 0.01;
     private DriveTrain dt;
     private ArmController ac;
+    private PIDController slidePID;
     private ControllerHandler ch;
     private DcMotor lSlideMotor, rSlideMotor, lArmMotor, rArmMotor;
-    private PIDController slidePID;
 
     @Override
     public void init() {
         Hardware.init(hardwareMap);
+
+        ch = new ControllerHandler(gamepad1);
 
         DcMotor fR = Hardware.DT_FRONT_RIGHT_MOTOR.get();
         DcMotor fL = Hardware.DT_FRONT_LEFT_MOTOR.get();
@@ -38,8 +40,6 @@ public class CompetitionTeleop extends OpMode {
         Servo lClawServo = Hardware.CLAW_L_SERVO.get();
         Servo rClawServo = Hardware.CLAW_R_SERVO.get();
         ac = new ArmController(lSlideMotor, rSlideMotor, lArmMotor, rArmMotor, lClawServo, rClawServo);
-
-        ch = new ControllerHandler(gamepad1);
 
         slidePID = new PIDController(0.7, 0.02, 1.3, lSlideMotor, rSlideMotor);
 
@@ -62,11 +62,7 @@ public class CompetitionTeleop extends OpMode {
         }, "PID Thread").start();
     }
 
-    @Override
-    public void start() {
-        telemetry.addData("Status", "RUNNING...");
-        telemetry.update();
-    }
+    private boolean precisionArmMode;
 
     @Override
     public void loop() {
@@ -108,7 +104,7 @@ public class CompetitionTeleop extends OpMode {
             slidePID.disable();
             ac.setSlidePower(-ch.rY.getValue());
         } else if(ch.dpadUp.onPress()) {
-            slidePID.setSetPoint(2450);
+            slidePID.setSetPoint(1000);
         } else if(ch.dpadDown.onPress()) {
             slidePID.setSetPoint(0);
         } else if(!slidePID.isEnabled()) {
